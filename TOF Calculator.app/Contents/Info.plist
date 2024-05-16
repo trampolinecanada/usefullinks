@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>TOF Calculator</string>
+	<key>CFBundleExecutable</key>
+	<string>TOF Calculator</string>
+	<key>CFBundleIconFile</key>
+	<string>generated-654693e0a2dee21c95ec5844f4ba2128246be097571130192ef76ebea681ad22.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string>TOF Calculator</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>TOF Calculator</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.0.0</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+</dict>
+</plist>
