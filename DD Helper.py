@@ -9,13 +9,16 @@ text_colour = 'white'
 highlight_colour = '#D32027' #gymcan red
 background_colour = 'black'
 button_text_colour = 'black'
+female_colour = '#F608FF' #magenta
+male_colour = '#5DD4FC' #cyan
 font = 'sans 14 bold'
 frames_on = False #For debugging
 #GUI size parameters
 entry_width = 8
 label_width = 8
 col_padding = 5
-button_width = 4
+button_width = 5
+button_border_width = 2
 
 def calculate_DD(skill_string):
 	try:
@@ -108,8 +111,12 @@ def calculate_total(*args):
 				skill_string = skill_string[1:]
 			if len(skill_string) > 4:
 				num_triples += 1
-	bonus_women["text"] = "{:.1f}".format(max(0,(num_triples-2)*0.3))
-	bonus_men["text"] = "{:.1f}".format(max(0,(num_triples-5)*0.3))
+	bonus_w_value = max(0,(num_triples-2)*0.3)
+	bonus_m_value = max(0,(num_triples-5)*0.3)
+	bonus_women["text"] = "{:.1f}".format(bonus_w_value)
+	bonus_men["text"] = "{:.1f}".format(bonus_m_value)
+	total_women["text"] = "{:.1f}".format(bonus_w_value+total)
+	total_men["text"] = "{:.1f}".format(bonus_m_value+total)
 
 def update_score(n=-1,*args):
 	if n>=0:
@@ -146,7 +153,7 @@ def create_skill_button_frame(title,skills,row,col,rowspan=1):
 	if title != "":
 		tk.Label(master=button_frame, text=title, fg=text_colour, font=font, background=gui_background_color).grid(row=0, column=0)
 	for i in range(len(skills)):
-		skill_buttons[i] = tk.Button(master=button_frame, text=skills[i], command=partial(enter_skill, skills[i]), fg=button_text_colour, font=font, bd=0)
+		skill_buttons[i] = tk.Button(master=button_frame, text=skills[i], command=partial(enter_skill, skills[i]), fg=button_text_colour, font=font, bd=button_border_width)
 		skill_buttons[i].grid(row=i+1, column=0)
 		skill_buttons[i].config(width=button_width, height=2)
 		skill_buttons[i].bind("<Enter>",on_enter)
@@ -160,7 +167,7 @@ frame_list = []
 window = tk.Tk()
 window.title("DD Helper")
 window.resizable(width=True, height=True)
-window.geometry("1300x800")
+window.geometry("1400x800")
 window.configure(background=gui_background_color)
 ### Initialize Variables
 num_skills = 10
@@ -189,20 +196,24 @@ for i in range(num_skills):
 	score_entry[i].grid(row=row_num+i, column=2, sticky=tk.W+tk.E, padx=col_padding)
 	score_entry[i].config(bg=background_colour,fg=text_colour)
 row_num += num_skills
-clear_button = tk.Button(master=DD_frame, text="Clear", command=clear_scores, width=button_width, fg=button_text_colour, font=font, bd=0)
+clear_button = tk.Button(master=DD_frame, text="Clear", command=clear_scores, width=button_width, fg=button_text_colour, font=font, bd=button_border_width)
 clear_button.grid(row=row_num, column=1)
 clear_button.bind("<Enter>",on_enter)
 clear_button.bind("<Leave>",on_leave)
 result = tk.Label(master=DD_frame, text="0.0", fg=text_colour, font=font, background=gui_background_color)
 result.grid(row=row_num, column=2, pady=5)
 row_num += 1
-tk.Label(master=DD_frame, text="Bonus F:", fg=text_colour, font=font, background=gui_background_color).grid(row=row_num, column=1, pady=5)
+tk.Label(master=DD_frame, text="Bonus F:", fg=text_colour, font=font, background=gui_background_color).grid(row=row_num, column=0, pady=5)
 bonus_women = tk.Label(master=DD_frame, text="0.0", fg=text_colour, font=font, background=gui_background_color)
-bonus_women.grid(row=row_num, column=2, pady=5)
+bonus_women.grid(row=row_num, column=1, pady=5)
+total_women = tk.Label(master=DD_frame, text="0.0", fg=female_colour, font=font, background=gui_background_color)
+total_women.grid(row=row_num, column=2, pady=5)
 row_num += 1
-tk.Label(master=DD_frame, text="Bonus M:", fg=text_colour, font=font, background=gui_background_color).grid(row=row_num, column=1, pady=5)
+tk.Label(master=DD_frame, text="Bonus M:", fg=text_colour, font=font, background=gui_background_color).grid(row=row_num, column=0, pady=5)
 bonus_men = tk.Label(master=DD_frame, text="0.0", fg=text_colour, font=font, background=gui_background_color)
-bonus_men.grid(row=row_num, column=2, pady=5)
+bonus_men.grid(row=row_num, column=1, pady=5)
+total_men = tk.Label(master=DD_frame, text="0.0", fg=male_colour, font=font, background=gui_background_color)
+total_men.grid(row=row_num, column=2, pady=5)
 ### Element Buttons Frame
 elements_frame = tk.Frame(master=window)
 elements_frame.configure(background=gui_background_color)
