@@ -3,6 +3,8 @@ from tkinter import ttk
 from math import trunc
 import sys
 
+default_num_frames = 60
+
 def mode_num():
 	#0: TRI Times
 	#1: TRI Frames
@@ -41,9 +43,9 @@ def change_calc_type(*args):
 	calculate_score()
 
 def calculate_time_times(t1,t2):
-	if t1 == '':
+	if t1 == '' or t1 == '.':
 		t1 = 0
-	if t2 == '':
+	if t2 == '' or t2 == '.':
 		t2 = 0
 	return float(t2)-float(t1)
 
@@ -56,6 +58,10 @@ def calculate_score(*args):
 	total = 0
 	num_skills_complete = 10
 	mode = mode_num()
+	if mode == 1:
+		TRI_frames_frame.grid()
+	elif mode == 3:
+		TRS_frames_frame.grid()
 	fps_error_indicator.grid_remove()
 	fps = num_fps.get()
 	if (fps == '' or int(fps) == 0) and (mode == 1 or mode == 3):
@@ -63,17 +69,20 @@ def calculate_score(*args):
 		for i in range(num_skills):
 			time_diff[mode][i]["text"] = ""
 		result[mode]["text"] = ""
-		TRS_frames_frame.grid_remove()
+		if mode == 1:
+			TRI_frames_frame.grid_remove()
+		elif mode == 3:
+			TRS_frames_frame.grid_remove()
 		return
 	for i in range(num_skills):
 		if mode == 0:
-			skill_total = calculate_time_times(TRI_start_time[i].get(),TRI_end_time[i].get())
+			skill_total = max(calculate_time_times(TRI_start_time[i].get(),TRI_end_time[i].get()),0)
 		elif mode == 1:
-			skill_total = calculate_time_fps(TRI_frame_diff[i].get(),fps)
+			skill_total = abs(calculate_time_fps(TRI_frame_diff[i].get(),fps))
 		elif mode == 2:
-			skill_total = calculate_time_times(TRS_start_time[i].get(),TRS_end_time[i].get())*2.5
+			skill_total = abs(calculate_time_times(TRS_start_time[i].get(),TRS_end_time[i].get()))*2.5
 		if mode == 3:
-			skill_total = calculate_time_fps(TRS_frame_diff[i].get(),fps)*2.5
+			skill_total = abs(calculate_time_fps(TRS_frame_diff[i].get(),fps))*2.5
 		if (mode == 2 or mode == 3) and skill_total>1:
 			time_diff[mode][i]["text"] = "Out of "+str(i)
 			for j in range(i+1,num_skills):
@@ -98,9 +107,10 @@ def clear_scores():
 			TRI_frame_diff[i].set("0")
 		if mode == 2:
 			TRS_start_time[i].set("0.0")
-			TRS_end_time[i].set("0.0")
+			TRS_end_time[i].set("1.0")
 		if mode == 3:
-			TRS_frame_diff[i].set("0")
+			fps = num_fps.get()
+			TRS_frame_diff[i].set(str(fps))
 	calculate_score()
 
 #Validates entry as a number with max 1 decimal
@@ -193,7 +203,7 @@ ttk.Radiobutton(master=options_frame, text="Frames", variable=calc_type, value=1
 num_fps = ttk.Entry(master=options_frame, textvariable=num_frames, width=4, justify='center')
 num_fps.config(validate='all', validatecommand=(num_fps.register(is_int), '%P'))
 num_fps.grid(row=row_num,column=2)
-num_frames.set(60)
+num_frames.set(default_num_frames)
 fps_label = ttk.Label(master=options_frame, text="fps")
 fps_label.grid(row=row_num, column=3)
 row_num += 1
@@ -216,7 +226,7 @@ for i in range(num_skills):
 	TRI_end_time_entry[i] = ttk.Entry(master=TRI_time_frame, textvariable=TRI_end_time[i], width=entry_width, justify='center')
 	TRI_end_time_entry[i].config(validate='all', validatecommand=(TRI_end_time_entry[i].register(is_num), '%P'))
 	TRI_end_time_entry[i].grid(row=row_num+i, column=2, sticky=tk.W+tk.E, padx=col_padding)
-	time_diff[mode][i] = ttk.Label(master=TRI_time_frame, text="0.00", width=label_width)
+	time_diff[mode][i] = ttk.Label(master=TRI_time_frame, text="0.00", width=label_width, anchor='center')
 	time_diff[mode][i].grid(row=row_num+i, column=3, sticky=tk.W+tk.E, padx=col_padding)
 row_num += num_skills
 clear_button = ttk.Button(master=TRI_time_frame, text="Clear", command=clear_scores)
@@ -229,13 +239,14 @@ row_num = 0
 TRI_frames_frame = ttk.Frame(master=window)
 ttk.Label(master=TRI_frames_frame, text="Skill").grid(row=row_num, column=0)
 ttk.Label(master=TRI_frames_frame, text="Num Frames").grid(row=row_num, column=1)
+ttk.Label(master=TRI_frames_frame, text="Score").grid(row=row_num, column=2)
 row_num += 1
 for i in range(num_skills):
 	tk.Label(master=TRI_frames_frame, text=str(i+1)+":").grid(row=row_num+i, column=0)
 	TRI_frames_diff_entry[i] = ttk.Entry(master=TRI_frames_frame, textvariable=TRI_frame_diff[i], width=entry_width, justify='center')
 	TRI_frames_diff_entry[i].config(validate='all', validatecommand=(TRI_frames_diff_entry[i].register(is_num), '%P'))
 	TRI_frames_diff_entry[i].grid(row=row_num+i, column=1, sticky=tk.W+tk.E, padx=col_padding)
-	time_diff[mode][i] = ttk.Label(master=TRI_frames_frame, text="0.00", width=label_width)
+	time_diff[mode][i] = ttk.Label(master=TRI_frames_frame, text="0.00", width=label_width, anchor='center')
 	time_diff[mode][i].grid(row=row_num+i, column=2, sticky=tk.W+tk.E, padx=col_padding)
 row_num += num_skills
 clear_button = ttk.Button(master=TRI_frames_frame, text="Clear", command=clear_scores)
@@ -249,7 +260,7 @@ TRS_time_frame = tk.Frame(master=window)
 ttk.Label(master=TRS_time_frame, text="Skill").grid(row=row_num, column=0)
 ttk.Label(master=TRS_time_frame, text="Landing Time 1").grid(row=row_num, column=1)
 ttk.Label(master=TRS_time_frame, text="Landing Time 2").grid(row=row_num, column=2)
-ttk.Label(master=TRS_time_frame, text="Score").grid(row=row_num, column=3)
+ttk.Label(master=TRS_time_frame, text="Deduction").grid(row=row_num, column=3)
 row_num += 1
 for i in range(num_skills):
 	tk.Label(master=TRS_time_frame, text=str(i+1)+":").grid(row=row_num+i, column=0)
@@ -259,7 +270,7 @@ for i in range(num_skills):
 	TRS_end_time_entry[i] = ttk.Entry(master=TRS_time_frame, textvariable=TRS_end_time[i], width=entry_width, justify='center')
 	TRS_end_time_entry[i].config(validate='all', validatecommand=(TRS_end_time_entry[i].register(is_num), '%P'))
 	TRS_end_time_entry[i].grid(row=row_num+i, column=2, sticky=tk.W+tk.E, padx=col_padding)
-	time_diff[mode][i] = ttk.Label(master=TRS_time_frame, text="0.00", width=label_width)
+	time_diff[mode][i] = ttk.Label(master=TRS_time_frame, text="0.00", width=label_width, anchor='center')
 	time_diff[mode][i].grid(row=row_num+i, column=3, sticky=tk.W+tk.E, padx=col_padding)
 row_num += num_skills
 clear_button = tk.Button(master=TRS_time_frame, text="Clear", command=clear_scores)
@@ -272,13 +283,14 @@ row_num = 0
 TRS_frames_frame = tk.Frame(master=window)
 ttk.Label(master=TRS_frames_frame, text="Skill").grid(row=row_num, column=0)
 ttk.Label(master=TRS_frames_frame, text="Frames Difference").grid(row=row_num, column=1)
+ttk.Label(master=TRS_frames_frame, text="Deduction").grid(row=row_num, column=2)
 row_num += 1
 for i in range(num_skills):
 	ttk.Label(master=TRS_frames_frame, text=str(i+1)+":").grid(row=row_num+i, column=0)
 	TRS_frames_diff_entry[i] = ttk.Entry(master=TRS_frames_frame, textvariable=TRS_frame_diff[i], width=entry_width, justify='center')
 	TRS_frames_diff_entry[i].config(validate='all', validatecommand=(TRS_frames_diff_entry[i].register(is_num), '%P'))
 	TRS_frames_diff_entry[i].grid(row=row_num+i, column=1, sticky=tk.W+tk.E, padx=col_padding)
-	time_diff[mode][i] = ttk.Label(master=TRS_frames_frame, text="0.00", width=label_width)
+	time_diff[mode][i] = ttk.Label(master=TRS_frames_frame, text="0.00", width=label_width, anchor='center')
 	time_diff[mode][i].grid(row=row_num+i, column=2, sticky=tk.W+tk.E, padx=col_padding)
 row_num += num_skills
 clear_button = tk.Button(master=TRS_frames_frame, text="Clear", command=clear_scores)
